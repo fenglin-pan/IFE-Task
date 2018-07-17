@@ -1,132 +1,151 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>26</title>
+	<title>重构</title>
+	<style type="text/css">
+		.wrapper{margin: 0 auto;}
+	</style>
+	<script type="text/javascript">
+		window.onload=function () {
+			var $ = function(id){
+				return document.getElementById(id)
+			}
+			
+			var selectYear = $('select_year');
+			var selectMonth = $('select_month');
+			var selectDay = $('select_day');
+			var selectHour = $('select_hour');
+			var selectMin = $('select_minite');
+			var selectSec = $('select_second');
+
+			for(var i = 2000;i<=2020;i++){
+				var option = document.createElement('option');
+				option.text = i;
+				selectYear.appendChild(option);
+			}
+			pickerValue(12,selectMonth);
+			pickerValue(31,selectDay);
+			pickerValue(24,selectHour);
+			pickerValue(60,selectMin);
+			pickerValue(60,selectSec);
+			function pickerValue(num,selector){
+				for(var i = 1;i<=num;i++){
+					var option = document.createElement('option');
+					if(i<10){
+						option.text ='0'+i;
+					}else{
+						option.text = i;
+					}
+					selector.appendChild(option);
+				}
+			}
+			function dayPicker(y,m){
+				if(m==1||m==3||m==5||m==7||m==8||m==10||m==12){
+					pickerValue(31,selectDay);
+				}else if(m==2){
+					if(y%400===0||(y%4==0&&y%100!==0)){
+						pickerValue(28,selectDay)
+					}else{
+						pickerValue(29,selectDay);
+					}
+				}else{
+					pickerValue(31,selectDay)
+				}
+			}
+			// selectYear.addEventListener('change',function (e) {
+			// 	var m =selectMonth.value; 
+			// 	var y =selectYear.value;
+			// 	dayPicker(y,m);
+			// })
+			function selectTime(){
+				var obj1={
+					year:selectYear.value,
+					month:selectMonth.value,
+					day:selectDay.value,
+					hour:selectHour.value,
+					minite:selectMin.value,
+					second:selectSec.value
+				};
+				var dt = new Date();
+				var obj2={
+					year:dt.getFullYear(),
+					month:dt.getMonth(),
+					day:dt.getDate(),
+					hour:dt.getHours(),
+					minite:dt.getMinutes(),
+					second:dt.getSeconds()
+				}
+				return {'obj1':obj1,'obj2':obj2};
+			}
+
+			function setTime(){
+				var str;
+				var y =selectTime().obj1.year,m=selectTime().obj1.month,d=selectTime().obj1.day;
+				str=selectTime().obj1.year+'年'+selectTime().obj1.month+'月'+selectTime().obj1.day+'日 星期'+week(y,m,d)+' '+selectTime().obj1.hour+'：'+selectTime().obj1.minite+'：'+selectTime().obj1.second;
+				var date=new Date();
+
+				return str;
+			}
+			//计算星期
+			function week(y,m,d){
+				var week = ['日','一','二','三','四','五','六'];
+				var str = y+'-'+m+'-'+d;
+				var day = new Date(str).getDay();
+				return week[day]
+			}
+			
+			$('wrapper').onchange=function(){
+				var m =selectMonth.value; 
+				var y =selectYear.value;
+				dayPicker(y,m);
+				$('p').innerHTML=setTime();
+			}
+
+			//当前
+			function nowDate(date){
+				return date.getFullYear()+'年'+addZero(date.getMonth())+'月'+addZero(date.getDate())+'日 星期'+week1(date.getDay())+' '+addZero(date.getHours())+':'+addZero(date.getMinutes())+':'+addZero(date.getSeconds());
+			
+			}
+			function addZero(data){
+				if(data<10){
+					return '0'+data
+				}else{
+					return data
+				}
+			}
+			function week1(day){
+				var week = ['日','一','二','三','四','五','六'];
+				// var week = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+				return week[day]
+			}
+			
+			function time(){
+				var dt = new Date();
+				$('now').innerHTML=nowDate(dt);
+			}
+			$('now').onload=setInterval(time,1000)
+}
+	</script>
 </head>
 <body>
-	<select id='select_year'>
-	</select>
-	<select id='select_month'>
-	</select>
-	<select id='select_day'>
-	</select>
-	<select id='select_week'>
-	</select>
-	<select id='select_hour'>
-	</select>
-	<select id='select_minite'>
-	</select>
-	<select id='select_second'>
-	</select>
-	<p id='result'>
-		你选择的日期是<span id='sele_year'></span>年<span id='sele_month'></span>月<span id='sele_day'></span>日星期<span id='sele_week'></span> <span id='sele_hour'></span>:<span id='sele_minite'></span>:<span id='sele_sec'></span>
-		<p>当前时间：<span id='now'></span></p>
-	</p>
+	<div class='wrapper' id='wrapper'>
+		<select id='select_year'>
+		</select>
+		<select id='select_month'>
+		</select>
+		<select id='select_day'>
+		</select>
+		<select id='select_hour'>
+		</select>
+		<select id='select_minite'>
+		</select>
+		<select id='select_second'>
+		</select>
+	</div>
+	<div id='result-wrapper'>
+		<p>现在时间是<span id='now' ></span></p>
+		<p><span id='pOrF'>现在距离</span><span id='p'>2000年01月01日 星期一 01：01：01</span></p>
+	</div>
 	
-	<script type="text/javascript">
-		var selectY=document.getElementById('select_year');
-		var selectM=document.getElementById('select_month');
-		var selectD=document.getElementById('select_day');
-		var selectH=document.getElementById('select_hour');
-		var selectM1=document.getElementById('select_minite');
-		var selectS=document.getElementById('select_second');
-		var selectW=document.getElementById('select_week');
-
-		var result = document.getElementById('result');
-		var seleYear = document.getElementById('sele_year');
-		var seleMon = document.getElementById('sele_month');
-		var seleWeek = document.getElementById('sele_week');
-		var seleDay = document.getElementById('sele_day');
-		var seleHour = document.getElementById('sele_hour');
-		var seleMin = document.getElementById('sele_minite');
-		var seleSec = document.getElementById('sele_sec');
-		var now = document.getElementById('now');
-		function nowDate(date){
-			return date.getFullYear()+'年'+addZero(date.getMonth())+'月'+addZero(date.getDate())+'日 星期'+week(date.getDay())+' '+addZero(date.getHours())+':'+addZero(date.getMinutes())+':'+addZero(date.getSeconds());
-		}
-		//week
-		function week(day){
-			var week = ['日','一','二','三','四','五','六'];
-			return week[day]
-		}
-		//补全0
-		function addZero(data){
-			if(data<10){
-				return '0'+data
-			}else{
-				return data
-			}
-		}
-		var dt = new Date;
-		now.innerHTML=nowDate(dt);
-		seleYear.innerHTML='2000';
-		seleMon.innerHTML='01';
-		seleWeek.innerHTML='01';
-		seleDay.innerHTML='01';
-		seleHour.innerHTML='01';
-		seleMin.innerHTML='01';
-		seleSec.innerHTML='01';
-		select(selectM,seleMon)
-		select(selectD,seleDay)
-		select(selectM1,seleMin)
-		select(selectH,seleHour)
-		select(selectS,seleSec)
-		select(selectW,seleWeek)
-
-		pickerValue(12,selectM);
-		pickerValue(7,selectW);
-		pickerValue(24,selectH);
-		pickerValue(31,selectD);
-		pickerValue(60,selectM1);
-		pickerValue(60,selectS);
-		for(var i = 2000;i<=2020;i++){
-			var option = document.createElement('option');
-			option.text = i;
-			selectY.appendChild(option);
-		}
-		function pickerValue(num,selector){
-			for(var i = 1;i<=num;i++){
-				var option = document.createElement('option');
-				if(i<10){
-					option.text ='0'+i;
-				}else{
-					option.text = i;
-				}
-				selector.appendChild(option);
-			}
-		}
-		function dayPicker(y,m){
-			if(m==1||m==3||m==5||m==7||m==8||m==10||m==12){
-				pickerValue(31,selectD);
-			}else if(m==2){
-				if(y%400===0||(y%4==0&&y%100!==0)){
-					pickerValue(28,selectD)
-				}else{
-					pickerValue(29,selectD);
-				}
-			}else{
-				pickerValue(30,selectD)
-			}
-		}
-		selectY.addEventListener('change',function (e) {
-			var m =selectM.value; 
-			var y =selectY.value;
-			dayPicker(y,m);
-			seleYear.innerHTML = e.target.value;
-		})
-		function select(selector_f,selector_s){
-			selector_f.addEventListener('change',function (e) {
-			selector_s.innerHTML = e.target.value;
-			})
-
-		}
-		var span = result.getElementsByTagName('span');
-		var arr=[];
-		for(var i = 0;i<span.length;i++){
-			arr.push(span[i].innerHTML)
-		}
-		var arr = arr.splice(0,arr.length)
-		console.log(arr)
-	</script>
 </body>
 </html>
