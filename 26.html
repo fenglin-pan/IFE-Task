@@ -3,10 +3,18 @@
 <head>
 	<title>重构</title>
 	<style type="text/css">
-		.wrapper{margin: 0 auto;}
+		*{margin: 0;padding: 0;}
+		.wrapper{width:600px;margin: 100px auto;}
+		#result-wrapper{margin-top: 30px}
+		#result-wrapper p{margin:10px;}
+		select{width: 60px;background-color: #eeeeee;}
+		#p,#gap{font-weight: bold;}
+	}
 	</style>
 	<script type="text/javascript">
 		window.onload=function () {
+
+			//封装获取id元素函数
 			var $ = function(id){
 				return document.getElementById(id)
 			}
@@ -17,17 +25,13 @@
 			var selectHour = $('select_hour');
 			var selectMin = $('select_minite');
 			var selectSec = $('select_second');
-
-			for(var i = 2000;i<=2020;i++){
-				var option = document.createElement('option');
-				option.text = i;
-				selectYear.appendChild(option);
-			}
+			
 			pickerValue(12,selectMonth);
 			pickerValue(31,selectDay);
 			pickerValue(24,selectHour);
 			pickerValue(60,selectMin);
 			pickerValue(60,selectSec);
+			//通用选择器
 			function pickerValue(num,selector){
 				for(var i = 1;i<=num;i++){
 					var option = document.createElement('option');
@@ -39,6 +43,7 @@
 					selector.appendChild(option);
 				}
 			}
+			//天-选择器
 			function dayPicker(y,m){
 				if(m==1||m==3||m==5||m==7||m==8||m==10||m==12){
 					pickerValue(31,selectDay);
@@ -52,11 +57,13 @@
 					pickerValue(31,selectDay)
 				}
 			}
-			// selectYear.addEventListener('change',function (e) {
-			// 	var m =selectMonth.value; 
-			// 	var y =selectYear.value;
-			// 	dayPicker(y,m);
-			// })
+			//年-选择器
+			for(var i = 2000;i<=2020;i++){
+				var option = document.createElement('option');
+				option.text = i;
+				selectYear.appendChild(option);
+			}
+			//将选择的日期存放在对象中
 			function selectTime(){
 				var obj1={
 					year:selectYear.value,
@@ -66,22 +73,13 @@
 					minite:selectMin.value,
 					second:selectSec.value
 				};
-				var dt = new Date();
-				var obj2={
-					year:dt.getFullYear(),
-					month:dt.getMonth(),
-					day:dt.getDate(),
-					hour:dt.getHours(),
-					minite:dt.getMinutes(),
-					second:dt.getSeconds()
-				}
-				return {'obj1':obj1,'obj2':obj2};
+				return obj1;
 			}
-
+			//输出已选择的日期
 			function setTime(){
 				var str;
-				var y =selectTime().obj1.year,m=selectTime().obj1.month,d=selectTime().obj1.day;
-				str=selectTime().obj1.year+'年'+selectTime().obj1.month+'月'+selectTime().obj1.day+'日 星期'+week(y,m,d)+' '+selectTime().obj1.hour+'：'+selectTime().obj1.minite+'：'+selectTime().obj1.second;
+				var y =selectTime().year,m=selectTime().month,d=selectTime().day;
+				str=selectTime().year+'年'+selectTime().month+'月'+selectTime().day+'日 星期'+week(y,m,d)+' '+selectTime().hour+'：'+selectTime().minite+'：'+selectTime().second;
 				var date=new Date();
 
 				return str;
@@ -94,18 +92,7 @@
 				return week[day]
 			}
 			
-			$('wrapper').onchange=function(){
-				var m =selectMonth.value; 
-				var y =selectYear.value;
-				dayPicker(y,m);
-				$('p').innerHTML=setTime();
-			}
-
-			//当前
-			function nowDate(date){
-				return date.getFullYear()+'年'+addZero(date.getMonth())+'月'+addZero(date.getDate())+'日 星期'+week1(date.getDay())+' '+addZero(date.getHours())+':'+addZero(date.getMinutes())+':'+addZero(date.getSeconds());
-			
-			}
+			//补0
 			function addZero(data){
 				if(data<10){
 					return '0'+data
@@ -113,39 +100,59 @@
 					return data
 				}
 			}
-			function week1(day){
-				var week = ['日','一','二','三','四','五','六'];
-				// var week = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-				return week[day]
-			}
-			
-			function time(){
+			//计算时间差
+			function differ(){
 				var dt = new Date();
-				$('now').innerHTML=nowDate(dt);
+				var nowDate=dt.getTime();
+				var str = selectTime().year + "/" + selectTime().month + "/" +
+	            selectTime().day + " " +selectTime().hour + ":" +
+	            selectTime().minite + ":" +selectTime().second;
+	            var chooseDate=Date.parse(str);
+	            console.log(str);
+	            var differ=chooseDate-nowDate;
+	            var diff=Math.abs(differ);
+	            $('pOrF').innerHTML=differ>0?'还有':'已经过去';
+	            var day=Math.floor(diff/(1000*24*60*60));
+	            console.log(day,diff/(1000*24*60*60))
+	            var hour=Math.floor(diff % 86400000 / 3600000)
+	            var minite=Math.floor(diff% 3600000 / 60000);
+	            var second = Math.floor(diff% 60000 / 1000)
+	            $('gap').innerHTML=addZero(day)+'天'+addZero(hour)+'小时'+addZero(minite)+'分钟'+addZero(second)+'秒'
 			}
-			$('now').onload=setInterval(time,1000)
+			differ();
+			function end(){
+				pickerValue(0,selectDay)
+				var m =selectMonth.value; 
+				var y =selectYear.value;
+				dayPicker(y,m);
+				$('p').innerHTML=setTime();
+				differ();
+			}
+			$('wrapper').onchange=end;
+			setInterval(end,1000)
 }
 	</script>
 </head>
 <body>
-	<div class='wrapper' id='wrapper'>
-		<select id='select_year'>
-		</select>
-		<select id='select_month'>
-		</select>
-		<select id='select_day'>
-		</select>
-		<select id='select_hour'>
-		</select>
-		<select id='select_minite'>
-		</select>
-		<select id='select_second'>
-		</select>
+	<div class='wrapper'>
+		<div  id='wrapper'>
+			<select id='select_year'>
+			</select>
+			<select id='select_month'>
+			</select>
+			<select id='select_day'>
+			</select>
+			<select id='select_hour'>
+			</select>
+			<select id='select_minite'>
+			</select>
+			<select id='select_second'>
+			</select>
+		</div>
+		<div id='result-wrapper'>
+			<p>现在距离<span id='p'>2000年01月01日 星期六 01：01：01</span></p>
+			<p><span id='pOrF'>已经过去</span><span id='gap'></span></p>
+		</div>
 	</div>
-	<div id='result-wrapper'>
-		<p>现在时间是<span id='now' ></span></p>
-		<p><span id='pOrF'>现在距离</span><span id='p'>2000年01月01日 星期一 01：01：01</span></p>
-	</div>
-	
 </body>
 </html>
